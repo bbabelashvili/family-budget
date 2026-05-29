@@ -163,7 +163,7 @@ export function GoalsWidget({ profileId, currencies, dragHandle }: Props) {
                   </div>
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-500 ${isComplete ? 'bg-emerald-400' : 'bg-white'}`} style={{ width: `${pct}%` }} />
+                  <div className={`h-full rounded-full transition-all duration-500 ${pct < 25 ? 'bg-rose-400' : pct < 75 ? 'bg-amber-400' : 'bg-emerald-400'}`} style={{ width: `${pct}%` }} />
                 </div>
                 <div className="text-xs text-gray-400 mt-1">{pct}%</div>
               </div>
