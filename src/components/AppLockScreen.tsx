@@ -13,7 +13,10 @@ interface Props {
 type Step = 'setup-enter' | 'setup-confirm' | 'verify' | 'master'
 
 export function AppLockScreen({ onUnlock }: Props) {
-  const [step, setStep] = useState<Step>(() => getAppPinHash() ? 'verify' : 'setup-enter')
+  // No existing PIN → require master PIN before allowing setup (prevents anyone
+  // from walking up and setting their own PIN on first launch).
+  const hasPin = !!getAppPinHash()
+  const [step, setStep] = useState<Step>(() => hasPin ? 'verify' : 'master')
   const [pinDisplay, setPinDisplay] = useState(0)
   const [masterDisplay, setMasterDisplay] = useState(0)
   const [error, setError] = useState('')
@@ -132,7 +135,7 @@ export function AppLockScreen({ onUnlock }: Props) {
         <p className="text-gray-400 text-sm">Family Budget</p>
         <h2 className="text-xl font-semibold text-gray-900 mt-1">{title}</h2>
         {step === 'setup-enter' && <p className="text-gray-500 text-sm mt-1">Choose a 4-digit app PIN</p>}
-        {step === 'master' && <p className="text-gray-500 text-sm mt-1">Enter 6-digit master PIN to reset</p>}
+        {step === 'master' && <p className="text-gray-500 text-sm mt-1">{hasPin ? 'Enter 6-digit master PIN to reset' : 'Enter master PIN to set up the app'}</p>}
       </div>
 
       <div className={`flex gap-4 ${shake ? 'animate-bounce' : ''}`}>
@@ -176,7 +179,7 @@ export function AppLockScreen({ onUnlock }: Props) {
             Forgot PIN?
           </button>
         )}
-        {step === 'master' && (
+        {step === 'master' && hasPin && (
           <button
             onClick={() => { resetMaster(); syncStep('verify'); setError('') }}
             className="text-gray-400 hover:text-gray-600 text-xs transition-colors"
