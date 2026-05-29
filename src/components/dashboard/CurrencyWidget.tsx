@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
-import { RefreshCw, Check, Pencil, Plus, X } from 'lucide-react'
+import { RefreshCw, Check, Pencil, Plus } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -106,12 +107,10 @@ export function CurrencyWidget({ currencies, onUpdate, dragHandle }: Props) {
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-white font-mono text-sm">₴{c.exchange_rate}</span>
-                  <button onClick={() => startEdit(c)} className="text-gray-600 hover:text-gray-300 transition-colors">
+                  <button onClick={() => startEdit(c)} className="text-gray-400 hover:text-white transition-colors">
                     <Pencil size={12} />
                   </button>
-                  <button onClick={() => handleDelete(c.id)} className="text-gray-700 hover:text-red-400 transition-colors">
-                    <X size={12} />
-                  </button>
+                  <DeleteButton onDelete={() => handleDelete(c.id)} className="text-gray-400 hover:text-red-400 transition-colors" />
                 </div>
               )}
             </div>
