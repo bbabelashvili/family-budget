@@ -27,12 +27,11 @@
 .bg-card    { background-color: var(--color-card,   #1a1a1a); }
 .border-border { border-color:  var(--color-border,  #2a2a2a); }
 
-/* Prevent iOS Safari from zooming on input focus (triggers when font-size < 16px).
-   Use pointer:coarse so desktop layouts are not affected. */
 @media (pointer: coarse) {
-  input, select, textarea {
-    font-size: 16px !important;
-  }
+  /* Bump root size by 1 px — all rem-based text scales up proportionally */
+  html { font-size: 17px; }
+  /* Prevent iOS Safari from zooming on input focus (triggers when font-size < 16px) */
+  input, select, textarea { font-size: 16px !important; }
 }
 
 /* On touch devices hover never fires, so group-hover:opacity-100 buttons stay invisible.
