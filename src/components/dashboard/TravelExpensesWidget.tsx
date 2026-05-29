@@ -231,15 +231,15 @@ export function TravelExpensesWidget({ profileId, currencies, displayCurrencyId,
                             <div key={e.id} className="flex items-center justify-between py-1 group">
                               <div>
                                 <span className="text-sm text-gray-300">{e.description}</span>
-                                <span className="ml-1.5 text-xs text-gray-600">{e.category}</span>
+                                <span className="ml-1.5 text-xs text-gray-400">{e.category}</span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <div className="text-right">
                                   <div className="text-sm text-white">{formatCurrency(e.amount, code)}</div>
-                                  {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(e.amount, getRate(e.currency_id)))}</div>}
+                                  {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(toUAH(e.amount, getRate(e.currency_id)))}</div>}
                                 </div>
-                                <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
-                                <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
+                                <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
+                                <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
                               </div>
                             </div>
                           )

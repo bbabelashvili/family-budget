@@ -176,11 +176,11 @@ export function RegularExpensesWidget({ profileId, currencies, onSaved, dragHand
                           {e.frequency === 'annual' && <span className="ml-2 text-xs text-gray-600">/yr</span>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
-                          <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
+                          <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
+                          <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
                           <div className="text-right">
                             <div className="text-sm text-white">{formatCurrency(e.amount, code)}</div>
-                            {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(monthlyUAH(e))}/mo</div>}
+                            {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(monthlyUAH(e))}/mo</div>}
                           </div>
                           <PaidButton isPaid={isPaid} onToggle={() => togglePaid(e.id)} />
                         </div>

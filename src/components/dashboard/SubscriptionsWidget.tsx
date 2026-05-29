@@ -97,7 +97,7 @@ function SubRow({ s, code, monthlyUAHValue, onMarkPaid, onEdit, onDelete }: {
       <div>
         <div className="text-sm text-gray-300">
           {s.name}
-          <span className="ml-1.5 text-xs text-gray-600">{s.billing_cycle === 'annual' ? '/yr' : '/mo'}</span>
+          <span className="ml-1.5 text-xs text-gray-400">{s.billing_cycle === 'annual' ? '/yr' : '/mo'}</span>
         </div>
         {s.next_billing_date && (
           <div className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
@@ -106,11 +106,11 @@ function SubRow({ s, code, monthlyUAHValue, onMarkPaid, onEdit, onDelete }: {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <DeleteButton onDelete={onDelete} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
-        <button onClick={onEdit} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
+        <DeleteButton onDelete={onDelete} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
+        <button onClick={onEdit} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
         <div className="text-right">
           <div className="text-sm text-white">{formatCurrency(s.price, code)}</div>
-          {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(monthlyUAHValue)}/mo</div>}
+          {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(monthlyUAHValue)}/mo</div>}
         </div>
         <PaidButton onToggle={onMarkPaid} />
       </div>

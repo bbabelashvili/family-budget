@@ -158,10 +158,10 @@ export function AccommodationWidget({ profileId, currencies, displayCurrencyId, 
                   <div className="flex items-center gap-1.5">
                     <div className="text-right mr-1">
                       <div className="text-sm text-white font-medium">{formatCurrency(item.amount, code)}</div>
-                      {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(item.amount, getRate(item.currency_id)))}</div>}
+                      {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(toUAH(item.amount, getRate(item.currency_id)))}</div>}
                     </div>
-                    <button onClick={() => startEdit(item)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
-                    <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
+                    <button onClick={() => startEdit(item)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
+                    <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
                   </div>
                 </div>
               </div>

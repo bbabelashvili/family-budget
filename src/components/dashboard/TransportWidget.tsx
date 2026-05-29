@@ -163,10 +163,10 @@ export function TransportWidget({ profileId, currencies, displayCurrencyId, onSa
                     <div className="text-sm text-white">{item.description}</div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       {item.from_location && item.to_location && (
-                        <span className="text-xs text-gray-500">{item.from_location} → {item.to_location}</span>
+                        <span className="text-xs text-gray-400">{item.from_location} → {item.to_location}</span>
                       )}
                       {item.date && (
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-400">
                           {item.from_location && item.to_location && '· '}
                           {new Date(item.date).toLocaleDateString('en', { day: 'numeric', month: 'short' })}
                         </span>
@@ -177,10 +177,10 @@ export function TransportWidget({ profileId, currencies, displayCurrencyId, onSa
                 <div className="flex items-center gap-1.5 ml-2 shrink-0">
                   <div className="text-right mr-1">
                     <div className="text-sm text-white font-medium">{formatCurrency(item.amount, code)}</div>
-                    {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(item.amount, getRate(item.currency_id)))}</div>}
+                    {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(toUAH(item.amount, getRate(item.currency_id)))}</div>}
                   </div>
-                  <button onClick={() => startEdit(item)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
-                  <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
+                  <button onClick={() => startEdit(item)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
+                  <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
                 </div>
               </div>
             )

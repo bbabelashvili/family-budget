@@ -40,7 +40,7 @@
 @media (hover: none) {
   .group-hover\:opacity-100,
   .group-hover\/row\:opacity-100 {
-    opacity: 0.55;
+    opacity: 0.75;
   }
   /* Larger tap targets for bare icon buttons (no rounded-lg = row action icons) */
   button:has(> svg):not([class*="rounded-lg"]) {

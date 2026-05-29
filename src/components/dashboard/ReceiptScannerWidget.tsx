@@ -528,7 +528,7 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-white">₴{item.total_amount.toFixed(2)}</span>
                           <button onClick={() => handleDeleteItem(item.id)}
-                            className="opacity-0 group-hover/row:opacity-100 text-gray-600 hover:text-red-400 transition-all">
+                            className="opacity-0 group-hover/row:opacity-100 text-gray-400 hover:text-red-400 transition-all">
                             <X size={11} />
                           </button>
                         </div>

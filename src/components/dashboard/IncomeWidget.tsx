@@ -137,12 +137,12 @@ export function IncomeWidget({ profileId, currencies, onSaved, dragHandle }: Pro
                   {taxRate > 0 && <div className="text-xs text-gray-600 mt-0.5">{taxRate}% tax</div>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <DeleteButton onDelete={() => handleDelete(i.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
-                  <button onClick={() => startEdit(i)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
+                  <DeleteButton onDelete={() => handleDelete(i.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
+                  <button onClick={() => startEdit(i)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
                   <div className="text-right">
                     <div className="text-sm text-white font-medium">{formatCurrency(i.total, code)}</div>
                     {taxRate > 0 && <div className="text-xs text-gray-500">net {formatCurrency(net, code)}</div>}
-                    {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(net, rate))}</div>}
+                    {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(toUAH(net, rate))}</div>}
                   </div>
                 </div>
               </div>

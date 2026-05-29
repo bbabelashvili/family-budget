@@ -192,18 +192,18 @@ export function DebtWidget({ profileId, currencies, onSaved, dragHandle }: Props
                   <div>
                     <span className="text-sm text-white font-medium">{d.name}</span>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
+                      <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
                         due {dueDate.toLocaleDateString('en', { day: 'numeric', month: 'short' })}
                       </span>
-                      <span className="text-xs text-gray-600">{paid}/{d.payments_total} paid</span>
+                      <span className="text-xs text-gray-400">{paid}/{d.payments_total} paid</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <DeleteButton onDelete={() => handleDelete(d.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
-                    <button onClick={() => startEdit(d)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
+                    <DeleteButton onDelete={() => handleDelete(d.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
+                    <button onClick={() => startEdit(d)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"><Pencil size={12} /></button>
                     <div className="text-right">
                       <div className="text-sm text-white font-medium">{formatCurrency(remaining, code)}</div>
-                      {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(remaining, rate))}</div>}
+                      {code !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(toUAH(remaining, rate))}</div>}
                     </div>
                     <PaidButton onToggle={() => handleMarkPaid(d)} />
                   </div>
@@ -211,7 +211,7 @@ export function DebtWidget({ profileId, currencies, onSaved, dragHandle }: Props
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                   <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                 </div>
-                <div className="text-xs text-gray-600 mt-1">{pct}% paid · {d.payments_left} left</div>
+                <div className="text-xs text-gray-400 mt-1">{pct}% paid · {d.payments_left} left</div>
               </div>
             )
           })}

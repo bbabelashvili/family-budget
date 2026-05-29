@@ -93,7 +93,7 @@ export function TripSummaryWidget({ profileId, currencies, refreshKey, onSaved, 
               <span className="text-sm text-gray-400">Spent</span>
               <div className="text-right">
                 <div className="text-sm text-white font-medium">{formatCurrency(spentDisplay, budgetCode)}</div>
-                {budgetCode !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(totalUAH)}</div>}
+                {budgetCode !== 'UAH' && <div className="text-xs text-gray-400">{formatUAH(totalUAH)}</div>}
               </div>
             </div>
             <div className="flex justify-between items-center">
