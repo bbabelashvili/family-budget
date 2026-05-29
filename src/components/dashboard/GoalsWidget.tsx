@@ -140,7 +140,7 @@ export function GoalsWidget({ profileId, currencies, dragHandle }: Props) {
                       {isComplete && <span className="text-xs text-emerald-400">✓ Done!</span>}
                     </div>
                     {g.deadline && (
-                      <div className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-xs text-gray-400 mt-0.5">
                         By {new Date(g.deadline).toLocaleDateString('en', { month: 'short', year: 'numeric' })}
                       </div>
                     )}
@@ -148,24 +148,24 @@ export function GoalsWidget({ profileId, currencies, dragHandle }: Props) {
                   <div className="flex items-center gap-1">
                     <span className="text-sm text-gray-300">
                       {formatCurrency(g.current_amount, code)}{' '}
-                      <span className="text-gray-500">/ {formatCurrency(g.target_amount, code)}</span>
+                      <span className="text-gray-400">/ {formatCurrency(g.target_amount, code)}</span>
                     </span>
                     <button onClick={() => { setDepositGoal(g); setDepositAmount('') }}
-                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-emerald-400 transition-all ml-1" title="Add funds">
+                      className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-emerald-400 transition-all ml-1" title="Add funds">
                       <PlusCircle size={12} />
                     </button>
                     <button onClick={() => startEdit(g)}
-                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-white transition-all" title="Edit goal">
+                      className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all" title="Edit goal">
                       <Pencil size={12} />
                     </button>
                     <DeleteButton onDelete={() => handleDelete(g.id)}
-                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-all" />
+                      className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all" />
                   </div>
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full transition-all duration-500 ${isComplete ? 'bg-emerald-400' : 'bg-white'}`} style={{ width: `${pct}%` }} />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">{pct}%</div>
+                <div className="text-xs text-gray-400 mt-1">{pct}%</div>
               </div>
             )
           })}

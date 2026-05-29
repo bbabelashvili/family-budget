@@ -94,7 +94,7 @@ export function SavingsWidget({ profileId, currencies, refreshKey, dragHandle }:
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => startEdit(s)} className="text-gray-600 hover:text-gray-300 transition-colors ml-1">
+                    <button onClick={() => startEdit(s)} className="text-gray-400 hover:text-gray-200 transition-colors ml-1">
                       <Pencil size={12} />
                     </button>
                   )}
@@ -105,7 +105,7 @@ export function SavingsWidget({ profileId, currencies, refreshKey, dragHandle }:
                 <div className="grid grid-cols-3 gap-2">
                   {(['uah_amount', 'usd_amount', 'eur_amount'] as const).map((field, i) => (
                     <div key={field}>
-                      <label className="text-xs text-gray-500">{['₴ UAH', '$ USD', '€ EUR'][i]}</label>
+                      <label className="text-xs text-gray-400">{['₴ UAH', '$ USD', '€ EUR'][i]}</label>
                       <input
                         type="number"
                         value={editVals[field]}
@@ -116,12 +116,12 @@ export function SavingsWidget({ profileId, currencies, refreshKey, dragHandle }:
                   ))}
                 </div>
               ) : (
-                <div className="flex gap-3 text-xs text-gray-500">
+                <div className="flex gap-3 text-xs text-gray-400">
                   {s.uah_amount > 0 && <span>₴{s.uah_amount.toLocaleString()}</span>}
                   {s.usd_amount > 0 && <span>${s.usd_amount.toLocaleString()}</span>}
                   {s.eur_amount > 0 && <span>€{s.eur_amount.toLocaleString()}</span>}
                   {s.uah_amount === 0 && s.usd_amount === 0 && s.eur_amount === 0 && (
-                    <span className="text-gray-600">empty</span>
+                    <span className="text-gray-400">empty</span>
                   )}
                 </div>
               )}

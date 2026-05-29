@@ -69,7 +69,7 @@ export function CurrencyWidget({ currencies, onUpdate, dragHandle }: Props) {
         icon={<RefreshCw size={14} />}
         action={
           <div className="flex items-center gap-2">
-            {lastUpdated && <span className="text-xs text-gray-500">Updated {lastUpdated}</span>}
+            {lastUpdated && <span className="text-xs text-gray-400">Updated {lastUpdated}</span>}
             <button onClick={() => setShowAddModal(true)} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors">
               <Plus size={14} />
             </button>
@@ -85,7 +85,7 @@ export function CurrencyWidget({ currencies, onUpdate, dragHandle }: Props) {
             <div key={c.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
               <div>
                 <span className="text-white font-medium text-sm">{c.code}</span>
-                <span className="text-gray-500 text-xs ml-2">{c.name}</span>
+                <span className="text-gray-400 text-xs ml-2">{c.name}</span>
               </div>
 
               {editing === c.id ? (

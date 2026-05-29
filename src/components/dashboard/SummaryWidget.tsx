@@ -187,8 +187,8 @@ export function SummaryWidget({ profileId, currencies, refreshKey, onSaved, drag
           {rows.map(row => (
             <div key={row.label} className="flex justify-between items-center">
               <span className="text-sm text-gray-400">{row.label}</span>
-              <span className={`text-sm font-medium ${row.sign === '+' ? 'text-white' : 'text-gray-300'}`}>
-                {row.sign}{formatUAH(row.value)}
+              <span className={`text-sm font-medium ${row.sign === '+' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                {formatUAH(row.value)}
               </span>
             </div>
           ))}
