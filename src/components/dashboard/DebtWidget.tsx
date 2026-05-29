@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, Landmark, Check, Pencil, X } from 'lucide-react'
+import { Plus, Landmark, Check, Pencil } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -190,7 +191,7 @@ export function DebtWidget({ profileId, currencies, onSaved, dragHandle }: Props
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => handleDelete(d.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"><X size={13} /></button>
+                    <DeleteButton onDelete={() => handleDelete(d.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
                     <button onClick={() => startEdit(d)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
                     <div className="text-right">
                       <div className="text-sm text-white font-medium">{formatCurrency(remaining, code)}</div>

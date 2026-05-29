@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { ShoppingCart, Plus, X, Trash2 } from 'lucide-react'
+import { ShoppingCart, Plus } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import type { TravelShoppingItem, ProfileId } from '../../types'
@@ -83,9 +84,7 @@ export function ShoppingWidget({ profileId, dragHandle }: Props) {
             <button onClick={() => handleToggle(item)}
               className="w-4 h-4 rounded border border-gray-600 hover:border-white flex-shrink-0 transition-colors" />
             <span className="text-sm text-gray-300 flex-1">{item.name}</span>
-            <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all">
-              <X size={13} />
-            </button>
+            <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
           </div>
         ))}
 
@@ -101,9 +100,7 @@ export function ShoppingWidget({ profileId, dragHandle }: Props) {
                   </svg>
                 </button>
                 <span className="text-sm text-gray-600 line-through flex-1">{item.name}</span>
-                <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-700 hover:text-red-400 transition-all">
-                  <Trash2 size={12} />
-                </button>
+                <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-700 hover:text-red-400 transition-all" />
               </div>
             ))}
           </>

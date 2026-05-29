@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, LayoutList, X, Pencil, Check } from 'lucide-react'
+import { Plus, LayoutList, Pencil, Check } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -174,7 +175,7 @@ export function RegularExpensesWidget({ profileId, currencies, onSaved, dragHand
                           {e.frequency === 'annual' && <span className="ml-2 text-xs text-gray-600">/yr</span>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <button onClick={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"><X size={13} /></button>
+                          <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
                           <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
                           <div className="text-right">
                             <div className="text-sm text-white">{formatCurrency(e.amount, code)}</div>

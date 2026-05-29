@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
 import { Plus, Receipt, Pencil, X, Settings, PieChart, List } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -238,7 +239,7 @@ export function TravelExpensesWidget({ profileId, currencies, displayCurrencyId,
                                   {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(e.amount, getRate(e.currency_id)))}</div>}
                                 </div>
                                 <button onClick={() => startEdit(e)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
-                                <button onClick={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"><X size={13} /></button>
+                                <DeleteButton onDelete={() => handleDelete(e.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
                               </div>
                             </div>
                           )

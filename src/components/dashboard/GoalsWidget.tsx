@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
 import { Plus, Target, Pencil, X, Check, PlusCircle } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -157,10 +158,8 @@ export function GoalsWidget({ profileId, currencies, dragHandle }: Props) {
                       className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-white transition-all" title="Edit goal">
                       <Pencil size={12} />
                     </button>
-                    <button onClick={() => handleDelete(g.id)}
-                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-all">
-                      <X size={12} />
-                    </button>
+                    <DeleteButton onDelete={() => handleDelete(g.id)}
+                      className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-400 transition-all" />
                   </div>
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">

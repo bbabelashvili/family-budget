@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, CreditCard, X, Pencil, Check } from 'lucide-react'
+import { Plus, CreditCard, Pencil, Check } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -96,7 +97,7 @@ function SubRow({ s, code, monthlyUAHValue, onMarkPaid, onEdit, onDelete }: {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={onDelete} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"><X size={13} /></button>
+        <DeleteButton onDelete={onDelete} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
         <button onClick={onEdit} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
         <div className="text-right">
           <div className="text-sm text-white">{formatCurrency(s.price, code)}</div>

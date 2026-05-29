@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, BedDouble, Pencil, X } from 'lucide-react'
+import { Plus, BedDouble, Pencil } from 'lucide-react'
+import { DeleteButton } from '../ui/DeleteButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -160,7 +161,7 @@ export function AccommodationWidget({ profileId, currencies, displayCurrencyId, 
                       {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(item.amount, getRate(item.currency_id)))}</div>}
                     </div>
                     <button onClick={() => startEdit(item)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-white transition-all"><Pencil size={12} /></button>
-                    <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"><X size={13} /></button>
+                    <DeleteButton onDelete={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all" />
                   </div>
                 </div>
               </div>
