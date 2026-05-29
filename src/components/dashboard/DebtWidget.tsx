@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, Landmark, Check, Pencil } from 'lucide-react'
+import { Plus, Landmark, Pencil } from 'lucide-react'
 import { DeleteButton } from '../ui/DeleteButton'
+import { PaidButton } from '../ui/PaidButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -24,10 +25,15 @@ const EMPTY_FORM = { name: '', payment_amount: '', payments_total: '', payments_
 type FormState = typeof EMPTY_FORM
 
 function advanceDueDate(date: string, cycle: string): string {
-  const d = new Date(date)
-  if (cycle === 'monthly') d.setMonth(d.getMonth() + 1)
-  else if (cycle === 'biweekly') d.setDate(d.getDate() + 14)
-  else d.setDate(d.getDate() + 7)
+  if (cycle === 'monthly') {
+    const [y, m, d] = date.split('-').map(Number)
+    const nm = m === 12 ? 1 : m + 1
+    const ny = m === 12 ? y + 1 : y
+    const maxDay = new Date(ny, nm, 0).getDate()
+    return `${ny}-${String(nm).padStart(2, '0')}-${String(Math.min(d, maxDay)).padStart(2, '0')}`
+  }
+  const d = new Date(date + 'T00:00:00')
+  d.setDate(d.getDate() + (cycle === 'biweekly' ? 14 : 7))
   return d.toISOString().slice(0, 10)
 }
 
@@ -118,15 +124,17 @@ export function DebtWidget({ profileId, currencies, onSaved, dragHandle }: Props
   const getRate = (id: number) => currencies.find(c => c.id === id)?.exchange_rate ?? 1
   const getCode = (id: number) => currencies.find(c => c.id === id)?.code ?? 'USD'
 
-  const handleMarkPaid = async (debt: Debt) => {
+  const handleMarkPaid = (debt: Debt) => {
     if (debt.payments_left <= 0) return
     const newLeft = debt.payments_left - 1
-    await supabase.from('debts').update({
-      payments_left: newLeft,
-      due_date: advanceDueDate(debt.due_date, debt.billing_cycle),
-      active: newLeft > 0,
-    }).eq('id', debt.id)
-    load(); onSaved?.()
+    const newDueDate = advanceDueDate(debt.due_date, debt.billing_cycle)
+    const stillActive = newLeft > 0
+    // Optimistic update
+    setDebts(prev => stillActive
+      ? prev.map(d => d.id === debt.id ? { ...d, payments_left: newLeft, due_date: newDueDate } : d)
+      : prev.filter(d => d.id !== debt.id))
+    supabase.from('debts').update({ payments_left: newLeft, due_date: newDueDate, active: stillActive })
+      .eq('id', debt.id).then(() => onSaved?.())
   }
 
   const handleAdd = async () => {
@@ -197,10 +205,7 @@ export function DebtWidget({ profileId, currencies, onSaved, dragHandle }: Props
                       <div className="text-sm text-white font-medium">{formatCurrency(remaining, code)}</div>
                       {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(toUAH(remaining, rate))}</div>}
                     </div>
-                    <button onClick={() => handleMarkPaid(d)}
-                      className="p-1 rounded-lg text-gray-600 hover:text-emerald-400 transition-colors" title="Mark payment as made">
-                      <Check size={13} />
-                    </button>
+                    <PaidButton onToggle={() => handleMarkPaid(d)} />
                   </div>
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">

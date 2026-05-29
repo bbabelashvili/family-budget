@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, CreditCard, Pencil, Check } from 'lucide-react'
+import { Plus, CreditCard, Pencil } from 'lucide-react'
 import { DeleteButton } from '../ui/DeleteButton'
+import { PaidButton } from '../ui/PaidButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -17,11 +18,19 @@ interface Props {
 const EMPTY_FORM = { name: '', price: '', currency_id: '2', billing_cycle: 'monthly', next_billing_date: '' }
 type FormState = typeof EMPTY_FORM
 
+/** Advance a YYYY-MM-DD billing date by one cycle, clamping to end-of-month.
+ *  e.g. May 31 + monthly → Jun 30 (not Jul 1). */
 function advanceBillingDate(date: string, cycle: string): string {
-  const d = new Date(date)
-  if (cycle === 'monthly') d.setMonth(d.getMonth() + 1)
-  else d.setFullYear(d.getFullYear() + 1)
-  return d.toISOString().slice(0, 10)
+  const [y, m, d] = date.split('-').map(Number)
+  if (cycle === 'monthly') {
+    const nm = m === 12 ? 1 : m + 1
+    const ny = m === 12 ? y + 1 : y
+    const maxDay = new Date(ny, nm, 0).getDate()   // day 0 of next month = last day of nm
+    return `${ny}-${String(nm).padStart(2, '0')}-${String(Math.min(d, maxDay)).padStart(2, '0')}`
+  } else {
+    const maxDay = new Date(y + 1, m, 0).getDate()
+    return `${y + 1}-${String(m).padStart(2, '0')}-${String(Math.min(d, maxDay)).padStart(2, '0')}`
+  }
 }
 
 function SubFormFields({ f, setF, currencies }: {
@@ -91,8 +100,8 @@ function SubRow({ s, code, monthlyUAHValue, onMarkPaid, onEdit, onDelete }: {
           <span className="ml-1.5 text-xs text-gray-600">{s.billing_cycle === 'annual' ? '/yr' : '/mo'}</span>
         </div>
         {s.next_billing_date && (
-          <div className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
-            due {new Date(s.next_billing_date).toLocaleDateString('en', { day: 'numeric', month: 'short' })}
+          <div className={`text-xs mt-0.5 ${isOverdue ? 'text-red-400' : 'text-gray-400'}`}>
+            due {new Date(s.next_billing_date + 'T00:00:00').toLocaleDateString('en', { day: 'numeric', month: 'short' })}
           </div>
         )}
       </div>
@@ -103,10 +112,7 @@ function SubRow({ s, code, monthlyUAHValue, onMarkPaid, onEdit, onDelete }: {
           <div className="text-sm text-white">{formatCurrency(s.price, code)}</div>
           {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(monthlyUAHValue)}/mo</div>}
         </div>
-        <button onClick={onMarkPaid}
-          className="p-1 rounded-lg text-gray-600 hover:text-emerald-400 transition-colors" title="Mark as paid">
-          <Check size={13} />
-        </button>
+        <PaidButton onToggle={onMarkPaid} />
       </div>
     </div>
   )
@@ -141,12 +147,18 @@ export function SubscriptionsWidget({ profileId, currencies, onSaved, dragHandle
     return s.billing_cycle === 'annual' ? uah / 12 : uah
   }
 
-  const handleMarkPaid = async (s: Subscription) => {
+  const handleMarkPaid = (s: Subscription) => {
     if (!s.next_billing_date) return
-    await supabase.from('subscriptions').update({
-      next_billing_date: advanceBillingDate(s.next_billing_date, s.billing_cycle),
-    }).eq('id', s.id)
-    load(); onSaved?.()
+    const newDate = advanceBillingDate(s.next_billing_date, s.billing_cycle)
+    // Optimistic: update & re-sort immediately so UI is instant
+    setSubs(prev => [...prev.map(x => x.id === s.id ? { ...x, next_billing_date: newDate } : x)]
+      .sort((a, b) => {
+        if (!a.next_billing_date) return 1
+        if (!b.next_billing_date) return -1
+        return a.next_billing_date.localeCompare(b.next_billing_date)
+      }))
+    supabase.from('subscriptions').update({ next_billing_date: newDate }).eq('id', s.id)
+      .then(() => onSaved?.())
   }
 
   const handleDelete = async (id: string) => {

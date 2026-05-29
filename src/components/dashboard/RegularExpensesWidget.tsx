@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react'
-import { Plus, LayoutList, Pencil, Check } from 'lucide-react'
+import { Plus, LayoutList, Pencil } from 'lucide-react'
 import { DeleteButton } from '../ui/DeleteButton'
+import { PaidButton } from '../ui/PaidButton'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -181,11 +182,7 @@ export function RegularExpensesWidget({ profileId, currencies, onSaved, dragHand
                             <div className="text-sm text-white">{formatCurrency(e.amount, code)}</div>
                             {code !== 'UAH' && <div className="text-xs text-gray-500">{formatUAH(monthlyUAH(e))}/mo</div>}
                           </div>
-                          <button onClick={() => togglePaid(e.id)}
-                            className={`p-1 rounded-lg transition-colors ${isPaid ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-600 hover:text-emerald-400'}`}
-                            title={isPaid ? 'Mark as unpaid' : 'Mark as paid'}>
-                            <Check size={13} />
-                          </button>
+                          <PaidButton isPaid={isPaid} onToggle={() => togglePaid(e.id)} />
                         </div>
                       </div>
                     )
