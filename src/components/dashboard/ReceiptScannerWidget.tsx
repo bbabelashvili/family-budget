@@ -59,13 +59,10 @@ Exclude taxes, service charges, loyalty points, and payment lines.${note ? `\n\n
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 async function parseWithClaude(base64: string, mimeType: string, note: string, modelId: string): Promise<ParsedReceipt> {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY as string
-  if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY not set in .env')
   const validMime = (['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as string[]).includes(mimeType) ? mimeType : 'image/jpeg'
   const res = await fetch('/api/anthropic/v1/messages', {
     method: 'POST',
     headers: {
-      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
       'content-type': 'application/json',
     },
