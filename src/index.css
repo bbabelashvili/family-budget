@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-white font-sans antialiased;
+    min-height: 100dvh;
+  }
+  * {
+    @apply box-border;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Per-profile theme overrides — CSS vars set by Dashboard on the root container */
+.bg-card    { background-color: var(--color-card,   #1a1a1a); }
+.border-border { border-color:  var(--color-border,  #2a2a2a); }
