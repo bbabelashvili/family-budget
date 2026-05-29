@@ -25,3 +25,22 @@
 /* Per-profile theme overrides — CSS vars set by Dashboard on the root container */
 .bg-card    { background-color: var(--color-card,   #1a1a1a); }
 .border-border { border-color:  var(--color-border,  #2a2a2a); }
+
+/* Prevent iOS Safari from zooming on input focus (font-size < 16px triggers zoom) */
+input, select, textarea {
+  font-size: max(16px, 1em);
+}
+
+/* On touch devices hover never fires, so group-hover:opacity-100 buttons stay invisible.
+   Show them at reduced opacity instead — they fade to full on :active (tap). */
+@media (hover: none) {
+  .group-hover\:opacity-100,
+  .group-hover\/row\:opacity-100 {
+    opacity: 0.55;
+  }
+  /* Larger tap targets for bare icon buttons (no rounded-lg = row action icons) */
+  button:has(> svg):not([class*="rounded-lg"]) {
+    padding: 8px;
+    margin: -8px;
+  }
+}
