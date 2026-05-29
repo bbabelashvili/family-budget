@@ -145,6 +145,13 @@ export function Dashboard({ profileId, onLogout }: Props) {
   useEffect(() => { loadCurrencies() }, [loadCurrencies])
   useEffect(() => { loadTravelCurrency() }, [loadTravelCurrency, refreshKey])
 
+  // Sync body background to profile colour so iOS over-scroll bounce matches
+  useEffect(() => {
+    const bg = PROFILE_BG[profileId] ?? '#F2F0EF'
+    document.body.style.backgroundColor = bg
+    return () => { document.body.style.backgroundColor = '' }
+  }, [profileId])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),

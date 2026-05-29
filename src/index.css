@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-surface text-white font-sans antialiased;
+    background-color: #F2F0EF; /* default light; Dashboard overrides per-profile */
+    @apply text-white font-sans antialiased;
     min-height: 100dvh;
   }
   * {
