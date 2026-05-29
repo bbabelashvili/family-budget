@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, type ReactNode } from 'react'
 import { TrendingUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
-import { formatUAH } from '../../lib/utils'
 import type { ProfileId, GroceryItem } from '../../types'
 
 interface Props {
