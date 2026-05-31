@@ -86,11 +86,9 @@ async function parseWithClaude(base64: string, mimeType: string, note: string, m
 }
 
 async function parseWithGemini(base64: string, mimeType: string, note: string, modelId: string): Promise<ParsedReceipt> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string
-  if (!apiKey) throw new Error('VITE_GEMINI_API_KEY not set in .env')
   const validMime = (['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as string[]).includes(mimeType) ? mimeType : 'image/jpeg'
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`,
+    `/api/gemini/v1beta/models/${modelId}:generateContent`,
     {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

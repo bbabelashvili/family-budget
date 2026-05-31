@@ -21,6 +21,18 @@ export default defineConfig(({ mode }) => {
             })
           },
         },
+        // Proxy Gemini API calls — key injected server-side as query param
+        '/api/gemini': {
+          target: 'https://generativelanguage.googleapis.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/gemini/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
+              const sep = (req.url ?? '').includes('?') ? '&' : '?'
+              proxyReq.path += `${sep}key=${env.GEMINI_API_KEY ?? ''}`
+            })
+          },
+        },
       },
     },
   }
