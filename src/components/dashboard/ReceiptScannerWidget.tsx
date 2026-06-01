@@ -15,11 +15,8 @@ export const GROCERY_CATEGORIES = [
 const VENDORS = ['Метро', 'Сільпо', 'Ашан', 'Базар', 'Egersund', 'Rozetka', 'Avalon', 'Доставки', 'Watershop', 'Інше']
 
 const MODELS = [
-  { id: 'claude-sonnet-4-6',      label: 'Sonnet 4.6',          provider: 'claude' as const },
-  { id: 'claude-haiku-4-5',       label: 'Haiku 4.5',           provider: 'claude' as const },
-  { id: 'gemini-2.5-flash',       label: 'Gemini 2.5 Flash',    provider: 'gemini' as const },
-  { id: 'gemini-2.5-flash-lite',  label: 'Gemini 2.5 Flash Lite', provider: 'gemini' as const },
-  { id: 'gemini-3.1-flash-lite',  label: 'Gemini 3.1 Flash Lite', provider: 'gemini' as const },
+  { id: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+  { id: 'claude-haiku-4-5',  label: 'Haiku 4.5'  },
 ] as const
 
 type ModelId = typeof MODELS[number]['id']
@@ -85,33 +82,6 @@ async function parseWithClaude(base64: string, mimeType: string, note: string, m
   return JSON.parse(match[0]) as ParsedReceipt
 }
 
-async function parseWithGemini(base64: string, mimeType: string, note: string, modelId: string): Promise<ParsedReceipt> {
-  const validMime = (['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as string[]).includes(mimeType) ? mimeType : 'image/jpeg'
-  const res = await fetch(
-    `/api/gemini/v1beta/models/${modelId}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [
-          { inline_data: { mime_type: validMime, data: base64 } },
-          { text: buildPrompt(note) },
-        ]}],
-        generationConfig: { temperature: 0, maxOutputTokens: 4096 },
-      }),
-    }
-  )
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({})) as { error?: { message?: string } }
-    throw new Error(body.error?.message ?? `Gemini API error ${res.status}`)
-  }
-  const data = await res.json() as { candidates: [{ content: { parts: [{ text: string }] } }] }
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-  const match = text.match(/\{[\s\S]*\}/)
-  if (!match) throw new Error('No JSON in Gemini response')
-  return JSON.parse(match[0]) as ParsedReceipt
-}
-
 // ── Module-scope components ───────────────────────────────────────────────────
 
 function ScanModal({ model, setModel, note, setNote, onScan, onClose }: {
@@ -134,7 +104,7 @@ function ScanModal({ model, setModel, note, setNote, onScan, onClose }: {
                   model === m.id ? 'border-white/30 bg-white/10 text-white' : 'border-border text-gray-400 hover:text-gray-300'
                 }`}>
                 <span>{m.label}</span>
-                <span className="text-xs text-gray-600">{m.provider === 'claude' ? 'Anthropic' : 'Google'}</span>
+                <span className="text-xs text-gray-400">Anthropic</span>
               </button>
             ))}
           </div>
@@ -325,10 +295,7 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
       })
       const [header, base64] = dataUrl.split(',')
       const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg'
-      const modelDef = MODELS.find(m => m.id === model)!
-      const result = modelDef.provider === 'gemini'
-        ? await parseWithGemini(base64, mimeType, note, model)
-        : await parseWithClaude(base64, mimeType, note, model)
+      const result = await parseWithClaude(base64, mimeType, note, model)
       result.vendor = VENDORS.includes(result.vendor) ? result.vendor : 'Інше'
       result.date = result.date || new Date().toISOString().slice(0, 10)
       setPreview(result)
