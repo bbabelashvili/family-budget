@@ -147,7 +147,7 @@ function PreviewItemRow({ item, onChange, onRemove }: {
     <div className="flex items-center gap-2 py-1.5">
       <span className="flex-1 text-xs text-gray-300 truncate min-w-0">{item.name}</span>
       <select value={item.category} onChange={e => onChange({ ...item, category: e.target.value })}
-        className="w-28 flex-shrink-0 bg-white/5 border border-border rounded px-1.5 py-1 text-xs text-white focus:outline-none">
+        className="w-24 flex-shrink-0 bg-white/5 border border-border rounded px-1.5 py-1 text-xs text-white focus:outline-none">
         {GROCERY_CATEGORIES.map(c => <option key={c} value={c} className="bg-card">{c}</option>)}
       </select>
       <input

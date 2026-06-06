@@ -20,7 +20,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
             <X size={18} />
           </button>
         </div>
-        <div className="p-5 overflow-y-auto">{children}</div>
+        <div className="p-5 overflow-y-auto overflow-x-hidden">{children}</div>
       </div>
     </div>
   )
