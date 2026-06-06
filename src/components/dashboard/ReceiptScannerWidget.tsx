@@ -55,6 +55,18 @@ JSON format:
 Exclude only: the VAT summary line at the bottom, service charges, loyalty point lines, and payment method lines.${note ? `\n\nExtra context: ${note}` : ''}`
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function extractJson(text: string): ParsedReceipt {
+  // Strip markdown code fences if present
+  const fenced = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/)
+  if (fenced) return JSON.parse(fenced[1]) as ParsedReceipt
+  // Fall back to first {...} block
+  const bare = text.match(/\{[\s\S]*\}/)
+  if (bare) return JSON.parse(bare[0]) as ParsedReceipt
+  throw new Error('No JSON in response')
+}
+
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 async function parseWithClaude(base64: string, mimeType: string, note: string, modelId: string): Promise<ParsedReceipt> {
@@ -79,9 +91,7 @@ async function parseWithClaude(base64: string, mimeType: string, note: string, m
     throw new Error(body.error?.message ?? `Claude API error ${res.status}`)
   }
   const data = await res.json() as { content: [{ text: string }] }
-  const match = data.content[0].text.match(/\{[\s\S]*\}/)
-  if (!match) throw new Error('No JSON in Claude response')
-  return JSON.parse(match[0]) as ParsedReceipt
+  return extractJson(data.content[0].text)
 }
 
 // ── Module-scope components ───────────────────────────────────────────────────
