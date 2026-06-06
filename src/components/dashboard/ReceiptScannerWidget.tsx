@@ -214,7 +214,7 @@ function ManualEntryModal({ onSave, onClose, onDelete, saving, initialVendor, in
           {entries.map(e => (
             <div key={e.id} className="flex items-center gap-2">
               <select value={e.category} onChange={ev => updateEntry(e.id, 'category', ev.target.value)}
-                className="flex-1 bg-white/5 border border-border rounded-xl px-2 py-1.5 text-white text-xs focus:outline-none">
+                className="flex-1 min-w-0 bg-white/5 border border-border rounded-xl px-2 py-1.5 text-white text-xs focus:outline-none">
                 {SORTED_CATEGORIES.map(c => <option key={c} value={c} className="bg-card">{c}</option>)}
               </select>
               <input type="number" step="0.01" min="0" placeholder="₴0.00"
