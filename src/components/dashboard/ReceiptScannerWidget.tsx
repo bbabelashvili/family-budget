@@ -37,11 +37,11 @@ Categories: ${GROCERY_CATEGORIES.join(', ')}
 
 Known vendors: ${VENDORS.join(', ')}
 
-PRICING RULE: Always use the final VAT-inclusive price for every item. VAT is part of the item cost, not a separate charge.
-- Metro receipts: show price без ПДВ and з ПДВ — always use з ПДВ (with VAT).
-- Other receipts: use the printed shelf/total price as-is (already VAT-inclusive).
+PRICING RULE:
+- Metro receipts: item prices on each line are WITHOUT VAT (без ПДВ). You MUST multiply every item total by 1.2 to get the VAT-inclusive price. Example: if the receipt shows 83.25 for an item, write 99.90 (83.25 × 1.2).
+- All other receipts: prices already include VAT — use them as printed.
 
-TASK: Extract every product line item. For each item: total = VAT-inclusive price × quantity − any discount. Assign the best matching category.
+TASK: Extract every product line item. For each item compute: total = (printed price × quantity − discount) × 1.2 for Metro, or printed total for others. Assign the best matching category.
 
 JSON format:
 {
@@ -52,7 +52,7 @@ JSON format:
   ]
 }
 
-Exclude only: the VAT summary line at the bottom, service charges, loyalty point lines, and payment method lines.${note ? `\n\nExtra context: ${note}` : ''}`
+Exclude: the VAT summary line, totals line, service charges, loyalty points, payment lines.${note ? `\n\nExtra context: ${note}` : ''}`
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
