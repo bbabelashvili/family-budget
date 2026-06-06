@@ -93,7 +93,7 @@ function SortableItem({ id, isWide, onToggleWide, children }: {
     <div className="flex items-center gap-0.5">
       <button
         onClick={onToggleWide}
-        className="p-1 rounded text-gray-500 hover:text-gray-300 transition-colors"
+        className="hidden sm:block p-1 rounded text-gray-500 hover:text-gray-300 transition-colors"
         title={isWide ? 'Make narrow' : 'Make wide'}
       >
         {isWide ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
