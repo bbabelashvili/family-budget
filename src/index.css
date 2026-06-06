@@ -44,6 +44,6 @@
   /* Larger tap targets for bare icon buttons (no rounded-lg = row action icons) */
   button:has(> svg):not([class*="rounded-lg"]) {
     padding: 8px;
-    margin: -8px;
+    margin-block: -8px; /* vertical only — horizontal margin causes page overflow */
   }
 }
