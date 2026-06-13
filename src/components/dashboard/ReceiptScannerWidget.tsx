@@ -311,7 +311,6 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
   const handleModelChange = (m: ModelId) => { setModel(m); localStorage.setItem(MODEL_KEY, m) }
 
   const triggerFilePicker = (useCapture: boolean) => {
-    setShowScanModal(false)
     const currentNote = note
     const currentModel = model
     const input = document.createElement('input')
@@ -325,6 +324,7 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
       const file = input.files?.[0]
       cleanup()
       if (!file) return
+      setShowScanModal(false)
       setScanError(null)
       setScanning(true)
       try {
