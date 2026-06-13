@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
-import { Camera, X, Loader2, ChevronDown, ChevronUp, Plus, Pencil } from 'lucide-react'
+import { Camera, Image, X, Loader2, ChevronDown, ChevronUp, Plus, Pencil } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Widget } from '../ui/Widget'
 import { Modal } from '../ui/Modal'
@@ -107,12 +107,13 @@ async function parseWithClaude(base64: string, mimeType: string, note: string, m
 
 // ── Module-scope components ───────────────────────────────────────────────────
 
-function ScanModal({ model, setModel, note, setNote, onScan, onClose }: {
+function ScanModal({ model, setModel, note, setNote, onCamera, onGallery, onClose }: {
   model: ModelId
   setModel: (m: ModelId) => void
   note: string
   setNote: (n: string) => void
-  onScan: () => void
+  onCamera: () => void
+  onGallery: () => void
   onClose: () => void
 }) {
   return (
@@ -138,11 +139,18 @@ function ScanModal({ model, setModel, note, setNote, onScan, onClose }: {
             value={note} onChange={e => setNote(e.target.value)}
             className="bg-white/5 border border-border rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-white/30" />
         </div>
-        <button onClick={onScan}
-          className="bg-white text-black font-semibold rounded-xl py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-          <Camera size={14} />
-          Open Camera / Gallery
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={onCamera}
+            className="bg-white text-black font-semibold rounded-xl py-2.5 text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+            <Camera size={14} />
+            Camera
+          </button>
+          <button onClick={onGallery}
+            className="bg-white/10 text-white font-semibold rounded-xl py-2.5 text-sm hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
+            <Image size={14} />
+            Gallery
+          </button>
+        </div>
       </div>
     </Modal>
   )
@@ -302,13 +310,14 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
 
   const handleModelChange = (m: ModelId) => { setModel(m); localStorage.setItem(MODEL_KEY, m) }
 
-  const triggerFilePicker = () => {
+  const triggerFilePicker = (useCapture: boolean) => {
     setShowScanModal(false)
     const currentNote = note
     const currentModel = model
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
+    if (useCapture) input.capture = 'environment'
     Object.assign(input.style, { position: 'fixed', top: '-200px', left: '-200px', opacity: '0', pointerEvents: 'none' })
     document.body.appendChild(input)
     const cleanup = () => { if (document.body.contains(input)) document.body.removeChild(input) }
@@ -571,7 +580,8 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
 
       {showScanModal && (
         <ScanModal model={model} setModel={handleModelChange} note={note} setNote={setNote}
-          onScan={triggerFilePicker}
+          onCamera={() => triggerFilePicker(true)}
+          onGallery={() => triggerFilePicker(false)}
           onClose={() => setShowScanModal(false)} />
       )}
 
