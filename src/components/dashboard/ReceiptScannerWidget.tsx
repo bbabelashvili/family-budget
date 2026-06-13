@@ -470,7 +470,7 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
           </div>
         }
       >
-        <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
+        <input ref={fileInputRef} type="file" accept="image/*"
           onChange={handleFileChange} className="hidden" />
 
         {scanError && <div className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2 mb-2">{scanError}</div>}
