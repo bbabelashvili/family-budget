@@ -31,19 +31,28 @@ type ReceiptGroup = { key: string; date: string; vendor: string; items: GroceryI
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
 function buildPrompt(note?: string): string {
+  const vendorHint = note?.trim() ?? ''
+  const isMetro = /metro|метро/i.test(vendorHint)
+
+  const pricingRule = isMetro
+    ? `PRICING RULE: This is a Metro (Метро) receipt. Prices on each line are WITHOUT VAT. Multiply every item price by 1.2. Example: printed 83.25 → write 99.90.`
+    : `PRICING RULE: Prices on this receipt already include VAT. Use printed totals as-is. Do NOT multiply anything.`
+
+  const vendorRule = vendorHint
+    ? `Vendor hint from user: "${vendorHint}". Match this to the closest entry in the known vendors list and use that as the "vendor" field.`
+    : `Identify the vendor from the receipt and match to the known vendors list. If no match, use "Інше".`
+
   return `Parse this grocery receipt and return JSON only (no markdown, no explanation).
 
 Categories: ${GROCERY_CATEGORIES.join(', ')}
 
 Known vendors: ${VENDORS.join(', ')}
 
-STEP 1 — Identify vendor: read the store name from the receipt and match it to the known vendors list.
+${pricingRule}
 
-STEP 2 — Apply pricing rule based on vendor:
-  • If vendor is "Метро" (Metro Cash & Carry): prices on each line are WITHOUT VAT. For every item: total = printed_price × 1.2. Example: printed 83.25 → write 99.90.
-  • For ALL other vendors (Сільпо, Ашан, Egersund, etc.): prices already include VAT. Use the printed total as-is. Do NOT multiply by 1.2.
+${vendorRule}
 
-STEP 3 — Extract every product line item and assign the best matching category.
+Extract every product line item and assign the best matching category.
 
 JSON format:
 {
@@ -54,7 +63,7 @@ JSON format:
   ]
 }
 
-Exclude: VAT summary line, receipt totals, service charges, loyalty points, payment lines.${note ? `\n\nExtra context: ${note}` : ''}`
+Exclude: VAT summary line, receipt totals, service charges, loyalty points, payment lines.`
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -124,8 +133,8 @@ function ScanModal({ model, setModel, note, setNote, onScan, onClose }: {
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-gray-400">Note <span className="text-gray-600">(optional)</span></label>
-          <input type="text" placeholder="e.g. Metro receipt, produce section only"
+          <label className="text-xs text-gray-400">Vendor <span className="text-gray-600">(type "Metro" to add VAT)</span></label>
+          <input type="text" placeholder="e.g. Metro, Сільпо, Ашан…"
             value={note} onChange={e => setNote(e.target.value)}
             className="bg-white/5 border border-border rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-white/30" />
         </div>
