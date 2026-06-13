@@ -37,11 +37,13 @@ Categories: ${GROCERY_CATEGORIES.join(', ')}
 
 Known vendors: ${VENDORS.join(', ')}
 
-PRICING RULE:
-- Metro receipts: item prices on each line are WITHOUT VAT (без ПДВ). You MUST multiply every item total by 1.2 to get the VAT-inclusive price. Example: if the receipt shows 83.25 for an item, write 99.90 (83.25 × 1.2).
-- All other receipts: prices already include VAT — use them as printed.
+STEP 1 — Identify vendor: read the store name from the receipt and match it to the known vendors list.
 
-TASK: Extract every product line item. For each item compute: total = (printed price × quantity − discount) × 1.2 for Metro, or printed total for others. Assign the best matching category.
+STEP 2 — Apply pricing rule based on vendor:
+  • If vendor is "Метро" (Metro Cash & Carry): prices on each line are WITHOUT VAT. For every item: total = printed_price × 1.2. Example: printed 83.25 → write 99.90.
+  • For ALL other vendors (Сільпо, Ашан, Egersund, etc.): prices already include VAT. Use the printed total as-is. Do NOT multiply by 1.2.
+
+STEP 3 — Extract every product line item and assign the best matching category.
 
 JSON format:
 {
@@ -52,7 +54,7 @@ JSON format:
   ]
 }
 
-Exclude: the VAT summary line, totals line, service charges, loyalty points, payment lines.${note ? `\n\nExtra context: ${note}` : ''}`
+Exclude: VAT summary line, receipt totals, service charges, loyalty points, payment lines.${note ? `\n\nExtra context: ${note}` : ''}`
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
