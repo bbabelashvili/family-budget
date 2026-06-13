@@ -285,7 +285,6 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
   const [showManualModal, setShowManualModal] = useState(false)
   const [manualSaving, setManualSaving] = useState(false)
   const [editingGroup, setEditingGroup] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
     // Show 3 months of receipts (matches the Trends widget window)
@@ -303,32 +302,45 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
 
   const handleModelChange = (m: ModelId) => { setModel(m); localStorage.setItem(MODEL_KEY, m) }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    e.target.value = ''
-    setScanError(null)
-    setScanning(true)
-    try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = ev => resolve(ev.target?.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(file)
-      })
-      const [header, base64] = dataUrl.split(',')
-      const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg'
-      const result = await parseWithClaude(base64, mimeType, note, model)
-      result.vendor = VENDORS.includes(result.vendor) ? result.vendor : 'Інше'
-      result.date = result.date || new Date().toISOString().slice(0, 10)
-      setPreview(result)
-      setPreviewItems(result.items)
-      setNote('')
-    } catch (err) {
-      setScanError(err instanceof Error ? err.message : 'Failed to parse receipt')
-    } finally {
-      setScanning(false)
-    }
+  const triggerFilePicker = () => {
+    setShowScanModal(false)
+    const currentNote = note
+    const currentModel = model
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    Object.assign(input.style, { position: 'fixed', top: '-200px', left: '-200px', opacity: '0', pointerEvents: 'none' })
+    document.body.appendChild(input)
+    const cleanup = () => { if (document.body.contains(input)) document.body.removeChild(input) }
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0]
+      cleanup()
+      if (!file) return
+      setScanError(null)
+      setScanning(true)
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = ev => resolve(ev.target?.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+        const [header, base64] = dataUrl.split(',')
+        const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg'
+        const result = await parseWithClaude(base64, mimeType, currentNote, currentModel)
+        result.vendor = VENDORS.includes(result.vendor) ? result.vendor : 'Інше'
+        result.date = result.date || new Date().toISOString().slice(0, 10)
+        setPreview(result)
+        setPreviewItems(result.items)
+        setNote('')
+      } catch (err) {
+        setScanError(err instanceof Error ? err.message : 'Failed to parse receipt')
+      } finally {
+        setScanning(false)
+      }
+    }, { once: true })
+    input.addEventListener('cancel', cleanup, { once: true })
+    input.click()
   }
 
   const handleConfirm = async () => {
@@ -470,9 +482,6 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
           </div>
         }
       >
-        <input ref={fileInputRef} type="file" accept="image/*"
-          onChange={handleFileChange} className="hidden" />
-
         {scanError && <div className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2 mb-2">{scanError}</div>}
         {scanning && (
           <div className="flex items-center gap-2 text-sm text-gray-400 py-4 justify-center">
@@ -562,7 +571,7 @@ export function ReceiptScannerWidget({ profileId, currencies: _currencies, refre
 
       {showScanModal && (
         <ScanModal model={model} setModel={handleModelChange} note={note} setNote={setNote}
-          onScan={() => { setShowScanModal(false); fileInputRef.current?.click() }}
+          onScan={triggerFilePicker}
           onClose={() => setShowScanModal(false)} />
       )}
 
