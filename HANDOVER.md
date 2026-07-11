@@ -44,20 +44,13 @@ Cloudflare Pages env vars (set in dashboard):
 - Token = HMAC-signed `{exp}`, stored in `localStorage['budget_db_token']`, gated on `SESSION_SECRET`.
 - App-unlock PIN moved from per-device localStorage → shared `budget.app_auth` table (server-verified).
 
-**⚠️ Cutover not yet completed — anon grants are STILL LIVE.** The code was built but the final lockdown SQL must be run **only after** the proxy is confirmed working on the deployed site (so the app never locks itself out):
+**✅ Cutover COMPLETE (2026-07-11).** Anon access to the `budget` schema has been revoked; the app runs entirely through the proxy. A raw call with the old anon key now returns `42501 permission denied`. Verified end-to-end on the live site (reads + writes 200 via `/api/db`).
 
-```sql
--- Run in Supabase SQL editor AFTER verifying the deployed app works through /api/db
-REVOKE ALL ON ALL TABLES IN SCHEMA budget FROM anon;
-REVOKE ALL ON ALL SEQUENCES IN SCHEMA budget FROM anon;
--- drop the permissive "anon_all" policies (optional cleanup; grants are what matter)
-DO $$ DECLARE r record; BEGIN
-  FOR r IN SELECT tablename, policyname FROM pg_policies WHERE schemaname='budget' AND policyname='anon_all'
-  LOOP EXECUTE format('DROP POLICY %I ON budget.%I', r.policyname, r.tablename); END LOOP;
-END $$;
-```
+**Two gotchas hit during cutover (both fixed — note for future schema work):**
+- The `budget` schema had **no grants for `service_role`** (only `anon`). New tables/schemas the proxy must reach need `GRANT ... TO service_role` (default privileges were set for the `budget` schema so future tables are covered).
+- The Supabase **`sb_secret_…` key is blocked if the request looks browser-originated**. The proxy must forward **only** PostgREST headers (accept, accept-profile, content-profile, content-type, prefer, range) — never the raw browser headers (Referer/User-Agent/Sec-Fetch/cookies), or Supabase returns "Forbidden use of secret API key in browser".
 
-**Deploy checklist:** (1) set the three env vars above in Cloudflare; (2) push → Pages deploys; (3) open the app, unlock with master PIN `240518`, set an app PIN, confirm widgets load/save (they now go through `/api/db`); (4) run the REVOKE SQL; (5) re-verify the app still works and that a raw anon call now returns 401/permission-denied.
+The app-unlock PIN was reset to a temporary `1234` during verification — change it via Forgot PIN → master `240518`.
 
 ---
 
