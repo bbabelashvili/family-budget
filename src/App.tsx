@@ -3,7 +3,7 @@ import { AppLockScreen } from './components/AppLockScreen'
 import { ProfileSelector } from './components/ProfileSelector'
 import { PinModal } from './components/PinModal'
 import { Dashboard } from './components/dashboard/Dashboard'
-import { getSession, setSession, clearSession, getAppSession, setAppSession } from './lib/auth'
+import { getSession, setSession, clearSession, getAppSession } from './lib/auth'
 import type { ProfileId } from './types'
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
   }, [appUnlocked])
 
   const handleAppUnlock = () => {
-    setAppSession()
+    // The session token was already stored by verifyAppPin during unlock.
     setAppUnlocked(true)
     const session = getSession()
     if (session) {

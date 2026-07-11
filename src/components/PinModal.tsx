@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { Delete } from 'lucide-react'
-import { getProfilePinHash, setProfilePin, verifyPin, clearProfilePin } from '../lib/auth'
+import { getProfilePinHash, setProfilePin, verifyPin, clearProfilePin, verifyMasterPin } from '../lib/auth'
 import type { ProfileId } from '../types'
 
 const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'] as const
 const PIN_LENGTH = 4
-const MASTER_PIN = '240518'
+const MASTER_PIN_LENGTH = 6
 
 const PROFILE_NAMES: Record<string, string> = {
   mine: 'Bao Yob 🦅',
@@ -66,18 +66,23 @@ export function PinModal({ profileId, onSuccess, onCancel }: Props) {
       return
     }
 
-    // Master PIN flow (6-digit)
+    // Master PIN flow (6-digit, verified server-side)
     if (stepRef.current === 'master') {
-      if (masterPinRef.current.length >= MASTER_PIN.length) return
+      if (processingRef.current) return
+      if (masterPinRef.current.length >= MASTER_PIN_LENGTH) return
       masterPinRef.current += key
       setMasterDisplay(masterPinRef.current.length)
-      if (masterPinRef.current.length < MASTER_PIN.length) return
-      if (masterPinRef.current === MASTER_PIN) {
+      if (masterPinRef.current.length < MASTER_PIN_LENGTH) return
+      processingRef.current = true
+      const ok = await verifyMasterPin(masterPinRef.current)
+      if (ok) {
         await clearProfilePin(profileId)
+        processingRef.current = false
         resetMaster()
         firstPinRef.current = ''
         syncStep('setup-enter')
       } else {
+        processingRef.current = false
         setError('Wrong master PIN.')
         triggerShake()
         setTimeout(() => resetMaster(), 400)
@@ -143,7 +148,7 @@ export function PinModal({ profileId, onSuccess, onCancel }: Props) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const currentDots = step === 'master' ? MASTER_PIN.length : PIN_LENGTH
+  const currentDots = step === 'master' ? MASTER_PIN_LENGTH : PIN_LENGTH
   const currentFilled = step === 'master' ? masterDisplay : pinDisplay
 
   const title = step === 'setup-enter' ? 'Set up PIN'

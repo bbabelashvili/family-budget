@@ -1,8 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://unqgoopxwjxjenkyxgxr.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVucWdvb3B4d2p4amVua3l4Z3hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzODUwNTEsImV4cCI6MjA5NDk2MTA1MX0.RmZEKnoZyQpsk2hvQGVx3QbWg9yOWYBaYKToOrFo7lI'
+// All DB access goes through the same-origin proxy Function (/api/db), which
+// injects the service-role key server-side and requires a valid session token.
+// The public anon key is no longer used — the client sends x-app-token instead.
+const proxyUrl = `${window.location.origin}/api/db`
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const DB_TOKEN_KEY = 'budget_db_token'
+
+// Inject the session token on every proxied request. Reading it per-call (rather
+// than baking it into a header at client-creation) means a fresh login is picked
+// up without recreating the client.
+const proxyFetch: typeof fetch = (input, init = {}) => {
+  const headers = new Headers(init.headers)
+  const token = localStorage.getItem(DB_TOKEN_KEY)
+  if (token) headers.set('x-app-token', token)
+  return fetch(input, { ...init, headers })
+}
+
+export const supabase = createClient(proxyUrl, 'proxy', {
   db: { schema: 'budget' },
+  auth: { persistSession: false, autoRefreshToken: false },
+  global: { fetch: proxyFetch },
 })

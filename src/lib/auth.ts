@@ -64,40 +64,73 @@ export async function clearProfilePin(profileId: ProfileId): Promise<void> {
   await supabase.from('profiles').update({ pin_hash: null }).eq('id', profileId)
 }
 
-// ── App-level lock (localStorage) ────────────────────────────────────────────
+// ── App-level lock (server-verified, token-gated) ────────────────────────────
+// The app-unlock PIN is verified server-side; a correct PIN (or the master PIN)
+// returns an HMAC session token that gates every DB request via the proxy.
 
-const APP_PIN_KEY = 'budget_app_pin_hash'
-const APP_SESSION_KEY = 'budget_app_session'
-const APP_SESSION_MS = 24 * 60 * 60 * 1000
+import { DB_TOKEN_KEY } from './supabase'
 
-export function getAppPinHash(): string | null {
-  return localStorage.getItem(APP_PIN_KEY)
-}
-
-export async function setAppPin(pin: string): Promise<void> {
-  localStorage.setItem(APP_PIN_KEY, await sha256(pin))
-}
-
-export async function verifyAppPin(pin: string): Promise<boolean> {
-  const hash = localStorage.getItem(APP_PIN_KEY)
-  if (!hash) return false
-  return (await sha256(pin)) === hash
-}
-
-export function clearAppPin(): void {
-  localStorage.removeItem(APP_PIN_KEY)
-}
-
-export function getAppSession(): boolean {
+// Is an app-unlock PIN configured yet?
+export async function appHasPin(): Promise<boolean> {
   try {
-    const raw = localStorage.getItem(APP_SESSION_KEY)
-    if (!raw) return false
-    const { expiresAt } = JSON.parse(raw) as { expiresAt: number }
-    if (Date.now() > expiresAt) { localStorage.removeItem(APP_SESSION_KEY); return false }
+    const res = await fetch('/api/auth/login')
+    if (!res.ok) return false
+    const { hasPin } = await res.json() as { hasPin: boolean }
+    return hasPin
+  } catch { return false }
+}
+
+// Verify an app PIN (or master PIN); on success store the session token.
+export async function verifyAppPin(pin: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin }),
+    })
+    if (!res.ok) return false
+    const { token } = await res.json() as { token: string }
+    localStorage.setItem(DB_TOKEN_KEY, token)
     return true
   } catch { return false }
 }
 
-export function setAppSession(): void {
-  localStorage.setItem(APP_SESSION_KEY, JSON.stringify({ expiresAt: Date.now() + APP_SESSION_MS }))
+// Master-gated: set/replace the app-unlock PIN.
+export async function setAppPin(pin: string, masterPin: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth/set-app-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ masterPin, newPin: pin }),
+    })
+    return res.ok
+  } catch { return false }
+}
+
+// Verify the master PIN server-side (used by profile PIN reset).
+export async function verifyMasterPin(pin: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth/master', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin }),
+    })
+    return res.ok
+  } catch { return false }
+}
+
+export function clearAppSession(): void {
+  localStorage.removeItem(DB_TOKEN_KEY)
+}
+
+// Valid app session === a present, unexpired token.
+export function getAppSession(): boolean {
+  const token = localStorage.getItem(DB_TOKEN_KEY)
+  if (!token) return false
+  try {
+    const payload = token.slice(0, token.lastIndexOf('.'))
+    const { exp } = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as { exp: number }
+    if (Date.now() >= exp) { localStorage.removeItem(DB_TOKEN_KEY); return false }
+    return true
+  } catch { return false }
 }

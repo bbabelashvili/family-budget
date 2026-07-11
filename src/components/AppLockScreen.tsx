@@ -1,22 +1,20 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { Delete } from 'lucide-react'
-import { getAppPinHash, setAppPin, verifyAppPin, clearAppPin } from '../lib/auth'
+import { appHasPin, setAppPin, verifyAppPin, verifyMasterPin } from '../lib/auth'
 
 const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'] as const
 const PIN_LENGTH = 4
-const MASTER_PIN = '240518'
+const MASTER_PIN_LENGTH = 6
 
 interface Props {
   onUnlock: () => void
 }
 
-type Step = 'setup-enter' | 'setup-confirm' | 'verify' | 'master'
+type Step = 'loading' | 'setup-enter' | 'setup-confirm' | 'verify' | 'master'
 
 export function AppLockScreen({ onUnlock }: Props) {
-  // No existing PIN → require master PIN before allowing setup (prevents anyone
-  // from walking up and setting their own PIN on first launch).
-  const hasPin = !!getAppPinHash()
-  const [step, setStep] = useState<Step>(() => hasPin ? 'verify' : 'master')
+  const [step, setStep] = useState<Step>('loading')
+  const [hasPin, setHasPin] = useState(false)
   const [pinDisplay, setPinDisplay] = useState(0)
   const [masterDisplay, setMasterDisplay] = useState(0)
   const [error, setError] = useState('')
@@ -24,14 +22,24 @@ export function AppLockScreen({ onUnlock }: Props) {
 
   const pinRef = useRef('')
   const masterPinRef = useRef('')
-  const stepRef = useRef<Step>(step)
+  const stepRef = useRef<Step>('loading')
   const firstPinRef = useRef('')
+  const enteredMasterRef = useRef('') // retained after master check, to authorize setAppPin
   const processingRef = useRef(false)
 
   const syncStep = (s: Step) => { stepRef.current = s; setStep(s) }
   const triggerShake = () => { setShake(true); setTimeout(() => setShake(false), 500) }
   const resetPin = () => { pinRef.current = ''; setPinDisplay(0) }
   const resetMaster = () => { masterPinRef.current = ''; setMasterDisplay(0) }
+
+  // No existing PIN → require master PIN before allowing setup (prevents anyone
+  // from walking up and setting their own PIN on first launch).
+  useEffect(() => {
+    appHasPin().then(exists => {
+      setHasPin(exists)
+      syncStep(exists ? 'verify' : 'master')
+    })
+  }, [])
 
   const handleKey = async (key: string) => {
     setError('')
@@ -48,12 +56,16 @@ export function AppLockScreen({ onUnlock }: Props) {
     }
 
     if (stepRef.current === 'master') {
-      if (masterPinRef.current.length >= MASTER_PIN.length) return
+      if (processingRef.current) return
+      if (masterPinRef.current.length >= MASTER_PIN_LENGTH) return
       masterPinRef.current += key
       setMasterDisplay(masterPinRef.current.length)
-      if (masterPinRef.current.length < MASTER_PIN.length) return
-      if (masterPinRef.current === MASTER_PIN) {
-        clearAppPin()
+      if (masterPinRef.current.length < MASTER_PIN_LENGTH) return
+      processingRef.current = true
+      const ok = await verifyMasterPin(masterPinRef.current)
+      processingRef.current = false
+      if (ok) {
+        enteredMasterRef.current = masterPinRef.current
         resetMaster()
         firstPinRef.current = ''
         syncStep('setup-enter')
@@ -88,7 +100,18 @@ export function AppLockScreen({ onUnlock }: Props) {
         syncStep('setup-enter')
         processingRef.current = false
       } else {
-        await setAppPin(completed)
+        const saved = await setAppPin(completed, enteredMasterRef.current)
+        if (!saved) {
+          setError('Could not save PIN. Try again.')
+          triggerShake()
+          resetPin()
+          firstPinRef.current = ''
+          syncStep('setup-enter')
+          processingRef.current = false
+          return
+        }
+        await verifyAppPin(completed) // mint the session token
+        enteredMasterRef.current = ''
         processingRef.current = false
         onUnlock()
       }
@@ -118,12 +141,20 @@ export function AppLockScreen({ onUnlock }: Props) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const currentDots = step === 'master' ? MASTER_PIN.length : PIN_LENGTH
+  const currentDots = step === 'master' ? MASTER_PIN_LENGTH : PIN_LENGTH
   const currentFilled = step === 'master' ? masterDisplay : pinDisplay
   const title = step === 'setup-enter' ? 'Set up PIN'
     : step === 'setup-confirm' ? 'Confirm PIN'
     : step === 'master' ? 'Master PIN'
     : 'Enter PIN'
+
+  if (step === 'loading') {
+    return (
+      <div className="min-h-dvh flex items-center justify-center" style={{ backgroundColor: '#F2F0EF' }}>
+        <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div
