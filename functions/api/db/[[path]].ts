@@ -39,14 +39,15 @@ export async function onRequest(context: { request: Request; env: Env }) {
   const restPath = url.pathname.replace(/^\/api\/db/, '')
   const targetUrl = `${SUPABASE_URL}${restPath}${url.search}`
 
-  // Forward the supabase-js request headers (Accept-Profile, Prefer, Range, etc.),
-  // but strip the client's own auth/apikey and inject the service role instead.
+  // Forward ONLY the headers PostgREST needs. Copying the browser's request
+  // headers (Referer, User-Agent, Sec-Fetch-*, Origin, cookies) makes Supabase
+  // treat this as a browser call and reject the secret key ("Forbidden use of
+  // secret API key in browser"). A clean, minimal header set avoids that.
+  const FORWARD = ['accept', 'accept-profile', 'content-profile', 'content-type', 'prefer', 'range', 'range-unit']
   const headers = new Headers()
-  for (const [key, value] of request.headers.entries()) {
-    const k = key.toLowerCase()
-    if (k === 'host' || k === 'origin' || k.startsWith('cf-')) continue
-    if (k === 'authorization' || k === 'apikey' || k === 'x-app-token') continue
-    headers.set(key, value)
+  for (const name of FORWARD) {
+    const v = request.headers.get(name)
+    if (v) headers.set(name, v)
   }
   headers.set('apikey', env.SUPABASE_SERVICE_KEY)
   headers.set('Authorization', `Bearer ${env.SUPABASE_SERVICE_KEY}`)
